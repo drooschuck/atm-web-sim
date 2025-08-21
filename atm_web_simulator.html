@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .atm-container {
+            background: #2c3e50;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .atm-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .bank-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .atm-subtitle {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .screen {
+            background: #1e3a8a;
+            border: 3px solid #374151;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 300px;
+            color: #60a5fa;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .screen-content {
+            display: none;
+        }
+
+        .screen-content.active {
+            display: block;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .key {
+            background: #4b5563;
+            border: 2px solid #6b7280;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .key:hover {
+            background: #6b7280;
+            transform: translateY(-2px);
+        }
+
+        .key:active {
+            transform: translateY(0);
+            background: #374151;
+        }
+
+        .key.clear {
+            background: #dc2626;
+        }
+
+        .key.clear:hover {
+            background: #ef4444;
+        }
+
+        .key.enter {
+            background: #059669;
+        }
+
+        .key.enter:hover {
+            background: #10b981;
+        }
+
+        .function-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .function-btn {
+            background: #7c3aed;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .function-btn:hover {
+            background: #8b5cf6;
+            transform: translateY(-2px);
+        }
+
+        .function-btn:active {
+            transform: translateY(0);
+        }
+
+        .input-display {
+            background: #374151;
+            border: 1px solid #6b7280;
+            border-radius: 5px;
+            color: #60a5fa;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            min-height: 40px;
+        }
+
+        .menu-item {
+            background: #1e40af;
+            border: 1px solid #3b82f6;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            margin: 5px 0;
+            padding: 10px;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #3b82f6;
+        }
+
+        .balance-display {
+            background: #065f46;
+            border-radius: 8px;
+            color: #6ee7b7;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 15px;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .error-message {
+            background: #7f1d1d;
+            border-radius: 5px;
+            color: #fca5a5;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .success-message {
+            background: #064e3b;
+            border-radius: 5px;
+            color: #6ee7b7;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .transaction-log {
+            background: #374151;
+            border-radius: 5px;
+            color: #d1d5db;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .card-slot {
+            background: #111827;
+            border: 2px dashed #6b7280;
+            border-radius: 5px;
+            color: #9ca3af;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .status-light {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .admin-indicator {
+            background: #7c2d12;
+            color: #fed7aa;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 10px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="atm-container">
+        <div class="atm-header">
+            <div class="bank-name">SECURE BANK ATM</div>
+            <div class="atm-subtitle"><span class="status-light"></span>Online</div>
+        </div>
+
+        <div class="card-slot">Insert your card or enter PIN below</div>
+
+        <div class="screen">
+            <!-- Login Screen -->
+            <div class="screen-content active" id="login-screen">
+                <h3>Welcome to Secure Bank ATM</h3>
+                <p>Please enter your 4-digit PIN:</p>
+                <p><small>Customer PIN: 1234 | Admin Password: 4321</small></p>
+                <div class="input-display" id="pin-display">****</div>
+                <div id="login-error" class="error-message" style="display: none;"></div>
+            </div>
+
+            <!-- Main Menu Screen -->
+            <div class="screen-content" id="main-menu">
+                <h3>Main Menu</h3>
+                <p>Please select a transaction:</p>
+                <div class="menu-item" onclick="showScreen('balance-screen')">A. View Balance</div>
+                <div class="menu-item" onclick="showScreen('withdraw-screen')">B. Withdraw Cash</div>
+                <div class="menu-item" onclick="showScreen('change-pin-screen')">C. Change PIN</div>
+                <div class="menu-item" onclick="showTransactionHistory()">D. View Transactions</div>
+                <div class="menu-item" onclick="logout()">E. Exit</div>
+            </div>
+
+            <!-- Balance Screen -->
+            <div class="screen-content" id="balance-screen">
+                <h3>Account Balance</h3>
+                <div class="balance-display" id="balance-amount">£123.45</div>
+                <p>Press any function key to return to main menu</p>
+            </div>
+
+            <!-- Withdraw Screen -->
+            <div class="screen-content" id="withdraw-screen">
+                <h3>Cash Withdrawal</h3>
+                <p>Enter amount (multiples of £10):</p>
+                <div class="input-display" id="withdraw-display">£</div>
+                <div id="withdraw-error" class="error-message" style="display: none;"></div>
+                <div id="withdraw-success" class="success-message" style="display: none;"></div>
+            </div>
+
+            <!-- Change PIN Screen -->
+            <div class="screen-content" id="change-pin-screen">
+                <h3>Change PIN</h3>
+                <p id="pin-prompt">Enter current PIN:</p>
+                <div class="input-display" id="new-pin-display">****</div>
+                <div id="pin-error" class="error-message" style="display: none;"></div>
+                <div id="pin-success" class="success-message" style="display: none;"></div>
+            </div>
+
+            <!-- Transaction History Screen -->
+            <div class="screen-content" id="history-screen">
+                <h3>Transaction History</h3>
+                <div class="transaction-log" id="transaction-list"></div>
+                <p>Press any function key to return to main menu</p>
+            </div>
+
+            <!-- Admin Screen -->
+            <div class="screen-content" id="admin-screen">
+                <div class="admin-indicator">ADMIN MODE</div>
+                <h3>Admin Access</h3>
+                <div class="menu-item" onclick="showAllTransactions()">1. View All Transactions</div>
+                <div class="menu-item" onclick="logout()">2. Exit Admin Mode</div>
+                <div class="transaction-log" id="admin-transaction-list" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="function-buttons">
+            <button class="function-btn" onclick="goBack()">← Back</button>
+            <button class="function-btn" onclick="showScreen('main-menu')">Menu</button>
+            <button class="function-btn" onclick="clearInput()">Clear</button>
+            <button class="function-btn" onclick="help()">Help</button>
+        </div>
+
+        <div class="keypad">
+            <button class="key" onclick="keyPress('1')">1</button>
+            <button class="key" onclick="keyPress('2')">2</button>
+            <button class="key" onclick="keyPress('3')">3</button>
+            <button class="key" onclick="keyPress('4')">4</button>
+            <button class="key" onclick="keyPress('5')">5</button>
+            <button class="key" onclick="keyPress('6')">6</button>
+            <button class="key" onclick="keyPress('7')">7</button>
+            <button class="key" onclick="keyPress('8')">8</button>
+            <button class="key" onclick="keyPress('9')">9</button>
+            <button class="key clear" onclick="clearInput()">CLR</button>
+            <button class="key" onclick="keyPress('0')">0</button>
+            <button class="key enter" onclick="enterPressed()">ENT</button>
+        </div>
+    </div>
+
+    <script>
+        // ATM State
+        let currentScreen = 'login-screen';
+        let currentInput = '';
+        let currentPin = '1234';
+        let balance = 123.45;
+        let isLoggedIn = false;
+        let isAdmin = false;
+        let changePinStep = 0; // 0: current pin, 1: new pin, 2: confirm pin
+        let newPin = '';
+        let transactions = [];
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen-content').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            currentScreen = screenId;
+            clearInput();
+            hideMessages();
+        }
+
+        function hideMessages() {
+            document.querySelectorAll('.error-message, .success-message').forEach(msg => {
+                msg.style.display = 'none';
+            });
+        }
+
+        function keyPress(digit) {
+            if (currentScreen === 'login-screen' || currentScreen === 'change-pin-screen') {
+                if (currentInput.length < 4) {
+                    currentInput += digit;
+                    updatePinDisplay();
+                }
+            } else if (currentScreen === 'withdraw-screen') {
+                currentInput += digit;
+                updateWithdrawDisplay();
+            }
+        }
+
+        function clearInput() {
+            currentInput = '';
+            updateDisplays();
+        }
+
+        function updateDisplays() {
+            updatePinDisplay();
+            updateWithdrawDisplay();
+        }
+
+        function updatePinDisplay() {
+            const pinDisplay = document.getElementById('pin-display') || document.getElementById('new-pin-display');
+            if (pinDisplay) {
+                pinDisplay.textContent = '*'.repeat(currentInput.length);
+            }
+        }
+
+        function updateWithdrawDisplay() {
+            const withdrawDisplay = document.getElementById('withdraw-display');
+            if (withdrawDisplay) {
+                withdrawDisplay.textContent = '£' + currentInput;
+            }
+        }
+
+        function enterPressed() {
+            if (currentScreen === 'login-screen') {
+                handleLogin();
+            } else if (currentScreen === 'withdraw-screen') {
+                handleWithdraw();
+            } else if (currentScreen === 'change-pin-screen') {
+                handlePinChange();
+            }
+        }
+
+        function handleLogin() {
+            if (currentInput === '4321') {
+                isAdmin = true;
+                isLoggedIn = true;
+                showScreen('admin-screen');
+                showMessage('Admin login successful!', 'success');
+            } else if (currentInput === currentPin) {
+                isLoggedIn = true;
+                showScreen('main-menu');
+                if (transactions.length > 0) {
+                    setTimeout(() => {
+                        showMessage(`Welcome back! You have ${transactions.length} previous transactions.`, 'success');
+                    }, 500);
+                }
+            } else {
+                showMessage('Incorrect PIN. Please try again.', 'error', 'login-error');
+            }
+            clearInput();
+        }
+
+        function handleWithdraw() {
+            const amount = parseInt(currentInput);
+            
+            if (!currentInput || isNaN(amount)) {
+                showMessage('Please enter a valid amount.', 'error', 'withdraw-error');
+                return;
+            }
+
+            if (amount <= 0) {
+                showMessage('Amount must be greater than £0.', 'error', 'withdraw-error');
+                return;
+            }
+
+            if (amount % 10 !== 0) {
+                showMessage('Please enter an amount in multiples of £10.', 'error', 'withdraw-error');
+                return;
+            }
+
+            if (amount > balance) {
+                showMessage('Insufficient funds. Your balance is £' + balance.toFixed(2), 'error', 'withdraw-error');
+                return;
+            }
+
+            // Process withdrawal
+            balance -= amount;
+            const timestamp = new Date().toLocaleString();
+            const transaction = `${timestamp} | Withdrawal £${amount.toFixed(2)} | Balance £${balance.toFixed(2)}`;
+            transactions.push(transaction);
+
+            document.getElementById('balance-amount').textContent = '£' + balance.toFixed(2);
+            showMessage(`Success! £${amount.toFixed(2)} withdrawn. Remaining balance: £${balance.toFixed(2)}`, 'success', 'withdraw-success');
+            
+            clearInput();
+        }
+
+        function handlePinChange() {
+            if (changePinStep === 0) {
+                // Verify current PIN
+                if (currentInput === currentPin) {
+                    changePinStep = 1;
+                    document.getElementById('pin-prompt').textContent = 'Enter new 4-digit PIN:';
+                    clearInput();
+                } else {
+                    showMessage('Incorrect current PIN.', 'error', 'pin-error');
+                    clearInput();
+                }
+            } else if (changePinStep === 1) {
+                // Enter new PIN
+                if (currentInput.length === 4 && /^\d{4}$/.test(currentInput)) {
+                    newPin = currentInput;
+                    changePinStep = 2;
+                    document.getElementById('pin-prompt').textContent = 'Re-enter new PIN to confirm:';
+                    clearInput();
+                } else {
+                    showMessage('PIN must be exactly 4 digits.', 'error', 'pin-error');
+                    clearInput();
+                }
+            } else if (changePinStep === 2) {
+                // Confirm new PIN
+                if (currentInput === newPin) {
+                    currentPin = newPin;
+                    showMessage('PIN changed successfully!', 'success', 'pin-success');
+                    setTimeout(() => {
+                        resetPinChange();
+                        showScreen('main-menu');
+                    }, 2000);
+                } else {
+                    showMessage('PINs do not match. Please try again.', 'error', 'pin-error');
+                    changePinStep = 1;
+                    document.getElementById('pin-prompt').textContent = 'Enter new 4-digit PIN:';
+                    clearInput();
+                }
+            }
+        }
+
+        function resetPinChange() {
+            changePinStep = 0;
+            newPin = '';
+            document.getElementById('pin-prompt').textContent = 'Enter current PIN:';
+        }
+
+        function showTransactionHistory() {
+            const transactionList = document.getElementById('transaction-list');
+            if (transactions.length === 0) {
+                transactionList.innerHTML = '<p>No transactions found.</p>';
+            } else {
+                transactionList.innerHTML = transactions.map(tx => `<div>${tx}</div>`).join('');
+            }
+            showScreen('history-screen');
+        }
+
+        function showAllTransactions() {
+            const adminList = document.getElementById('admin-transaction-list');
+            if (transactions.length === 0) {
+                adminList.innerHTML = '<p>No transactions found.</p>';
+            } else {
+                adminList.innerHTML = '<h4>All Withdrawal Transactions:</h4>' + 
+                    transactions.map(tx => `<div>${tx}</div>`).join('');
+            }
+            adminList.style.display = 'block';
+        }
+
+        function showMessage(message, type, elementId = null) {
+            let messageElement;
+            if (elementId) {
+                messageElement = document.getElementById(elementId);
+            } else {
+                // Create a temporary message
+                messageElement = document.createElement('div');
+                messageElement.className = type === 'error' ? 'error-message' : 'success-message';
+                messageElement.style.position = 'fixed';
+                messageElement.style.top = '20px';
+                messageElement.style.right = '20px';
+                messageElement.style.zIndex = '1000';
+                document.body.appendChild(messageElement);
+                
+                setTimeout(() => {
+                    if (messageElement.parentNode) {
+                        messageElement.parentNode.removeChild(messageElement);
+                    }
+                }, 3000);
+            }
+            
+            messageElement.textContent = message;
+            messageElement.style.display = 'block';
+            
+            if (elementId) {
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function goBack() {
+            if (currentScreen === 'main-menu' || currentScreen === 'admin-screen') {
+                logout();
+            } else if (currentScreen === 'change-pin-screen') {
+                resetPinChange();
+                showScreen('main-menu');
+            } else {
+                showScreen(isAdmin ? 'admin-screen' : 'main-menu');
+            }
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            isAdmin = false;
+            resetPinChange();
+            showScreen('login-screen');
+            clearInput();
+            showMessage('Thank you for using Secure Bank ATM!', 'success');
+        }
+
+        function help() {
+            let helpMessage = '';
+            if (currentScreen === 'login-screen') {
+                helpMessage = 'Enter your 4-digit PIN and press ENT. Use 1234 for customer or 4321 for admin access.';
+            } else if (currentScreen === 'main-menu') {
+                helpMessage = 'Select a transaction by clicking on the menu options or use the keypad to enter A, B, C, D, or E.';
+            } else if (currentScreen === 'withdraw-screen') {
+                helpMessage = 'Enter the amount you wish to withdraw (multiples of £10 only) and press ENT.';
+            } else {
+                helpMessage = 'Use the keypad to enter numbers and press ENT to confirm. Use function buttons for navigation.';
+            }
+            showMessage(helpMessage, 'success');
+        }
+
+        // Initialize the display
+        updateDisplays();
+    </script>
+</body>
+</html>
