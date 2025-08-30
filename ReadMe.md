@@ -29,7 +29,7 @@ A realistic web-based ATM (Automated Teller Machine) simulator with full banking
 
 ## 🚀 Live Demo
 
-**Deploy to Netlify:** [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy)
+**Deploy to Netlify:** [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://cpsim.netlify.app/)
 
 ## 📁 Project Structure
 
