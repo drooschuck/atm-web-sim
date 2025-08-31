@@ -29,17 +29,15 @@ A realistic web-based ATM (Automated Teller Machine) simulator with full banking
 
 ## 🚀 Live Demo
 
-[Live Cash Point Sim](https://cpsim.netlify.app/)
-
-**Cash Point:** [![Live ATM Sim](https://cpsim.netlify.app/)](https://cpsim.netlify.app/)
+[Cash Point Simulator](https://cpsim.netlify.app/)
 
 ## 📁 Project Structure
 
 ```
 atm-simulator/
-├── index.html          # Main HTML structure
-├── styles.css          # CSS styling and animations
-├── script.js           # JavaScript functionality
+├── index.html          # all in one (HTML,styles.css, script.js)   
+├── styles.css          # CSS styling and animations (Separate for best practice)
+├── script.js           # JavaScript functionality  (Separate for best practice)
 ├── README.md           # Project documentation
 └── screenshots/        # Demo images (optional)
 ```
@@ -56,18 +54,6 @@ atm-simulator/
 git clone https://github.com/yourusername/atm-simulator.git
 cd atm-simulator
 # Open index.html in your browser or use a local server
-```
-
-### Option 3: Local Development Server
-```bash
-# Using Python 3
-python -m http.server 8000
-
-# Using Node.js (if you have http-server installed)
-npx http-server
-
-# Using PHP
-php -S localhost:8000
 ```
 
 ## 🎮 How to Use
