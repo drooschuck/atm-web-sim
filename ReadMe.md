@@ -1,4 +1,4 @@
-# 🏧 ATM Web Simulator JavaScript Edition 
+# 🏧 ATM Web Simulator - JavaScript Edition 
 
 A realistic web-based ATM (Automated Teller Machine) simulator with full banking functionality, built with HTML, CSS, and JavaScript.
 
