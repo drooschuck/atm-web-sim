@@ -29,7 +29,7 @@ A realistic web-based ATM (Automated Teller Machine) simulator with full banking
 
 ## 🚀 Live Demo
 
-[Cash Point Simulator](https://cpsim.netlify.app/)
+[Cash Point Simulator](https://cpsim.netlify.app/) {:target="_blank"}
 
 ## 📁 Project Structure
 
